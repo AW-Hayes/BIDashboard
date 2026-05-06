@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useStorefronts } from '@/lib/hooks/useStorefronts';
 import { useBlueprints } from '@/lib/hooks/useBlueprints';
+import { useTerritory } from '@/lib/hooks/useTerritory';
 import { useRole } from '@/lib/context/RoleContext';
 import type { Storefront } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
@@ -14,6 +15,7 @@ import StorefrontFormModal from '@/components/storefronts/StorefrontFormModal';
 export default function StorefrontsPage() {
   const { storefronts, loading, refresh } = useStorefronts();
   const { blueprints } = useBlueprints();
+  const { territories } = useTerritory();
   const role = useRole();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Storefront | null>(null);
@@ -107,6 +109,7 @@ export default function StorefrontsPage() {
         onSaved={refresh}
         storefront={editing}
         blueprints={blueprints}
+        territories={territories}
       />
     </div>
   );

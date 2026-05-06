@@ -9,7 +9,7 @@ import Input from '@/components/ui/Input';
 export interface MaterialRow {
   resource_id: string | null;
   material_name: string;
-  quantity: number;
+  weight_kg: number;
 }
 
 interface MaterialsEditorProps {
@@ -24,7 +24,7 @@ export default function MaterialsEditor({ rows, onChange, resources, onResourceC
   const [creatingResource, setCreatingResource] = useState<number | null>(null);
 
   function addRow() {
-    onChange([...rows, { resource_id: null, material_name: '', quantity: 1 }]);
+    onChange([...rows, { resource_id: null, material_name: '', weight_kg: 1 }]);
   }
 
   function removeRow(index: number) {
@@ -112,14 +112,18 @@ export default function MaterialsEditor({ rows, onChange, resources, onResourceC
             )}
           </div>
 
-          <Input
-            type="number"
-            min={1}
-            value={row.quantity}
-            onChange={(e) => updateRow(i, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
-            className="w-20"
-            placeholder="Qty"
-          />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-gray-500">KG</label>
+            <Input
+              type="number"
+              min={0.001}
+              step={0.001}
+              value={row.weight_kg}
+              onChange={(e) => updateRow(i, { weight_kg: Math.max(0.001, parseFloat(e.target.value) || 0.001) })}
+              className="w-24"
+              placeholder="0.000"
+            />
+          </div>
 
           <button
             type="button"

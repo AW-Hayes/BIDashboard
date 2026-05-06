@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useFacilities } from '@/lib/hooks/useFacilities';
 import { useResources } from '@/lib/hooks/useResources';
 import { useBlueprints } from '@/lib/hooks/useBlueprints';
+import { useTerritory } from '@/lib/hooks/useTerritory';
 import { useRole } from '@/lib/context/RoleContext';
 import type { Facility } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
@@ -20,6 +21,7 @@ export default function FacilitiesPage() {
   const { facilities, loading, refresh } = useFacilities();
   const { resources } = useResources();
   const { blueprints } = useBlueprints();
+  const { territories } = useTerritory();
   const role = useRole();
 
   const [modal, setModal] = useState<ModalState>('none');
@@ -133,6 +135,7 @@ export default function FacilitiesPage() {
         onClose={closeModal}
         onSaved={refresh}
         facility={selected}
+        territories={territories}
       />
       <AssignResourceModal
         open={modal === 'assignResource'}

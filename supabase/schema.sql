@@ -171,3 +171,124 @@ create policy "editor delete sf_listings" on storefront_listings for delete usin
 -- Replace <your-user-uuid> with the UUID from auth.users
 -- ============================================================
 -- insert into user_roles (user_id, role) values ('<your-user-uuid>', 'editor');
+
+-- ============================================================
+-- MIGRATION 1 — Resource KG rework
+-- Run these if you already applied the original schema above.
+-- ============================================================
+
+-- Add weight_kg to resources (informational weight per unit)
+alter table resources add column if not exists weight_kg numeric(10,3);
+
+-- Rename quantity → weight_kg in blueprint_materials
+alter table blueprint_materials rename column quantity to weight_kg;
+alter table blueprint_materials alter column weight_kg set default 1.0;
+alter table blueprint_materials alter column weight_kg type numeric(10,3) using weight_kg::numeric(10,3);
+
+-- ============================================================
+-- MIGRATION 2 — Kingdom expansion
+-- ============================================================
+
+create type territory_status as enum ('controlled', 'contested', 'developing', 'lost');
+create type relation_status as enum ('allied', 'neutral', 'hostile', 'at_war', 'trade_partner');
+
+create table territories (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null unique,
+  description text,
+  status      territory_status not null default 'controlled',
+  notes       text,
+  created_at  timestamptz not null default now()
+);
+
+-- Link facilities and storefronts to territories
+alter table facilities  add column if not exists territory_id uuid references territories(id) on delete set null;
+alter table storefronts add column if not exists territory_id uuid references territories(id) on delete set null;
+
+-- Resource nodes in a territory
+create table territory_resources (
+  id           uuid primary key default gen_random_uuid(),
+  territory_id uuid not null references territories(id) on delete cascade,
+  resource_id  uuid not null references resources(id) on delete cascade,
+  notes        text,
+  unique(territory_id, resource_id)
+);
+
+-- Members (kingdom roster)
+create table members (
+  id         uuid primary key default gen_random_uuid(),
+  name       text not null,
+  rank       text,
+  discord    text,
+  notes      text,
+  created_at timestamptz not null default now()
+);
+
+-- Member assignments to facilities or storefronts
+create table member_assignments (
+  id            uuid primary key default gen_random_uuid(),
+  member_id     uuid not null references members(id) on delete cascade,
+  facility_id   uuid references facilities(id) on delete set null,
+  storefront_id uuid references storefronts(id) on delete set null,
+  role_notes    text
+);
+
+-- External factions
+create table factions (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null unique,
+  description text,
+  status      relation_status not null default 'neutral',
+  notes       text,
+  created_at  timestamptz not null default now()
+);
+
+-- Treaties with factions
+create table treaties (
+  id          uuid primary key default gen_random_uuid(),
+  faction_id  uuid not null references factions(id) on delete cascade,
+  title       text not null,
+  description text,
+  created_at  timestamptz not null default now()
+);
+
+-- RLS for new tables
+alter table territories        enable row level security;
+alter table territory_resources enable row level security;
+alter table members            enable row level security;
+alter table member_assignments enable row level security;
+alter table factions           enable row level security;
+alter table treaties           enable row level security;
+
+-- Read policies
+create policy "auth read territories"         on territories         for select using (auth.role() = 'authenticated');
+create policy "auth read territory_resources" on territory_resources for select using (auth.role() = 'authenticated');
+create policy "auth read members"             on members             for select using (auth.role() = 'authenticated');
+create policy "auth read member_assignments"  on member_assignments  for select using (auth.role() = 'authenticated');
+create policy "auth read factions"            on factions            for select using (auth.role() = 'authenticated');
+create policy "auth read treaties"            on treaties            for select using (auth.role() = 'authenticated');
+
+-- Write policies (editors only)
+create policy "editor insert territories"         on territories         for insert with check (current_user_role() = 'editor');
+create policy "editor update territories"         on territories         for update using  (current_user_role() = 'editor');
+create policy "editor delete territories"         on territories         for delete using  (current_user_role() = 'editor');
+
+create policy "editor insert territory_resources" on territory_resources for insert with check (current_user_role() = 'editor');
+create policy "editor update territory_resources" on territory_resources for update using  (current_user_role() = 'editor');
+create policy "editor delete territory_resources" on territory_resources for delete using  (current_user_role() = 'editor');
+
+create policy "editor insert members"             on members             for insert with check (current_user_role() = 'editor');
+create policy "editor update members"             on members             for update using  (current_user_role() = 'editor');
+create policy "editor delete members"             on members             for delete using  (current_user_role() = 'editor');
+
+create policy "editor insert member_assignments"  on member_assignments  for insert with check (current_user_role() = 'editor');
+create policy "editor update member_assignments"  on member_assignments  for update using  (current_user_role() = 'editor');
+create policy "editor delete member_assignments"  on member_assignments  for delete using  (current_user_role() = 'editor');
+
+create policy "editor insert factions"            on factions            for insert with check (current_user_role() = 'editor');
+create policy "editor update factions"            on factions            for update using  (current_user_role() = 'editor');
+create policy "editor delete factions"            on factions            for delete using  (current_user_role() = 'editor');
+
+create policy "editor insert treaties"            on treaties            for insert with check (current_user_role() = 'editor');
+create policy "editor update treaties"            on treaties            for update using  (current_user_role() = 'editor');
+create policy "editor delete treaties"            on treaties            for delete using  (current_user_role() = 'editor');

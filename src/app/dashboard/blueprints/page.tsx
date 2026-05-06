@@ -53,7 +53,7 @@ export default function BlueprintsPage() {
           {bp.materials && bp.materials.length > 0 ? (
             bp.materials.map((m) => (
               <Badge key={m.id} color="purple">
-                {m.resource?.name ?? m.material_name} ×{m.quantity}
+                {m.resource?.name ?? m.material_name} — {m.weight_kg} KG
               </Badge>
             ))
           ) : (

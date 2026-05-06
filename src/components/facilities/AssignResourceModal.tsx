@@ -78,13 +78,13 @@ export default function AssignResourceModal({ open, onClose, onSaved, facility, 
           placeholder="Select a resource..."
         />
         <Input
-          label="Production Rate (optional)"
+          label="Production Rate — KG/hr (optional)"
           type="number"
           min={0}
           step="0.01"
           value={productionRate}
           onChange={(e) => setProductionRate(e.target.value)}
-          placeholder="Units per hour / cycle"
+          placeholder="KG per hour / cycle"
         />
         <Input
           label="Notes"

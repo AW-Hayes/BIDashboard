@@ -34,6 +34,14 @@ export default function ResourcesPage() {
       render: (r) => r.category ? <Badge color="yellow">{r.category}</Badge> : <span className="text-gray-600">—</span>,
     },
     {
+      key: 'weight_kg',
+      header: 'Weight (KG)',
+      width: '110px',
+      render: (r) => r.weight_kg != null
+        ? <Badge color="blue">{r.weight_kg} KG</Badge>
+        : <span className="text-gray-600">—</span>,
+    },
+    {
       key: 'description',
       header: 'Description',
       render: (r) => <span className="text-gray-400">{r.description ?? '—'}</span>,
