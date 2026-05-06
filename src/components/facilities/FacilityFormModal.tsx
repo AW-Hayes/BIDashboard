@@ -20,6 +20,7 @@ interface Props {
 const typeOptions = [
   { value: 'material_production', label: 'Material Production' },
   { value: 'manufacturing', label: 'Manufacturing' },
+  { value: 'infrastructure', label: 'Infrastructure' },
 ];
 
 export default function FacilityFormModal({ open, onClose, onSaved, facility, territories }: Props) {

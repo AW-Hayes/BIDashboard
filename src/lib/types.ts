@@ -1,6 +1,6 @@
 // ── Enums ──────────────────────────────────────────────────────────────────
 
-export type FacilityType = 'material_production' | 'manufacturing';
+export type FacilityType = 'material_production' | 'manufacturing' | 'infrastructure';
 export type UserRole = 'viewer' | 'editor';
 export type TerritoryStatus = 'controlled' | 'contested' | 'developing' | 'lost';
 export type RelationStatus = 'allied' | 'neutral' | 'hostile' | 'at_war' | 'trade_partner';

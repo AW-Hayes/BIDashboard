@@ -49,8 +49,8 @@ export default function FacilitiesPage() {
       header: 'Type',
       width: '160px',
       render: (f) => (
-        <Badge color={f.type === 'manufacturing' ? 'blue' : 'green'}>
-          {f.type === 'manufacturing' ? 'Manufacturing' : 'Material Production'}
+        <Badge color={f.type === 'manufacturing' ? 'blue' : f.type === 'infrastructure' ? 'yellow' : 'green'}>
+          {f.type === 'manufacturing' ? 'Manufacturing' : f.type === 'infrastructure' ? 'Infrastructure' : 'Material Production'}
         </Badge>
       ),
     },
@@ -58,6 +58,9 @@ export default function FacilitiesPage() {
       key: 'assignment',
       header: 'Current Assignment',
       render: (f) => {
+        if (f.type === 'infrastructure') {
+          return <span className="text-gray-600 text-xs italic">—</span>;
+        }
         if (f.type === 'material_production') {
           return f.resource_assignment ? (
             <div className="flex items-center gap-2">
@@ -102,6 +105,7 @@ export default function FacilitiesPage() {
               {f.type === 'manufacturing' && (
                 <Button variant="secondary" size="sm" onClick={() => openAssignBlueprint(f)}>Assign Blueprint</Button>
               )}
+
               <Button variant="ghost" size="sm" onClick={() => openForm(f)}>Edit</Button>
               <Button variant="danger" size="sm" onClick={() => handleDelete(f)}>Delete</Button>
             </div>
