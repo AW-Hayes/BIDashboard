@@ -1,14 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Blueprint, Storefront, StorefrontListing } from '@/lib/types';
+import type { Blueprint, Storefront, StorefrontListing, Territory } from '@/lib/types';
 import { supabase } from '@/lib/supabase';
 import Modal from '@/components/ui/Modal';
 import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
 import Textarea from '@/components/ui/Textarea';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
-import Select from '@/components/ui/Select';
 
 interface Props {
   open: boolean;
@@ -16,6 +16,7 @@ interface Props {
   onSaved: () => void;
   storefront?: Storefront | null;
   blueprints: Blueprint[];
+  territories: Territory[];
 }
 
 interface ListingDraft {
@@ -25,10 +26,11 @@ interface ListingDraft {
   notes: string;
 }
 
-export default function StorefrontFormModal({ open, onClose, onSaved, storefront, blueprints }: Props) {
+export default function StorefrontFormModal({ open, onClose, onSaved, storefront, blueprints, territories }: Props) {
   const isEdit = !!storefront;
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
+  const [territoryId, setTerritoryId] = useState('');
   const [notes, setNotes] = useState('');
   const [isOpen, setIsOpen] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -42,6 +44,7 @@ export default function StorefrontFormModal({ open, onClose, onSaved, storefront
     if (open) {
       setName(storefront?.name ?? '');
       setLocation(storefront?.location ?? '');
+      setTerritoryId(storefront?.territory_id ?? '');
       setNotes(storefront?.notes ?? '');
       setIsOpen(storefront?.is_open ?? true);
       setExistingListings(storefront?.listings ?? []);
@@ -59,6 +62,7 @@ export default function StorefrontFormModal({ open, onClose, onSaved, storefront
     const payload = {
       name: name.trim(),
       location: location.trim() || null,
+      territory_id: territoryId || null,
       notes: notes.trim() || null,
       is_open: isOpen,
     };
@@ -114,6 +118,13 @@ export default function StorefrontFormModal({ open, onClose, onSaved, storefront
             <Input label="Storefront Name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Crossroads Market" required />
             <Input label="Location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Sector 7" />
           </div>
+          <Select
+            label="Territory (optional)"
+            value={territoryId}
+            onChange={(e) => setTerritoryId(e.target.value)}
+            options={territories.map((t) => ({ value: t.id, label: t.name }))}
+            placeholder="Unassigned"
+          />
           <Textarea label="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Operating hours, contact, etc." />
           <label className="flex items-center gap-3 cursor-pointer">
             <input

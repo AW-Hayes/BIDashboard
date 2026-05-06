@@ -38,7 +38,7 @@ export default function BlueprintFormModal({ open, onClose, onSaved, blueprint, 
         blueprint?.materials?.map((m) => ({
           resource_id: m.resource_id,
           material_name: m.material_name ?? m.resource?.name ?? '',
-          quantity: m.quantity,
+          weight_kg: m.weight_kg,
         })) ?? []
       );
       setError('');
@@ -79,7 +79,7 @@ export default function BlueprintFormModal({ open, onClose, onSaved, blueprint, 
           blueprint_id: blueprintId!,
           resource_id: m.resource_id || null,
           material_name: m.resource_id ? null : m.material_name.trim() || null,
-          quantity: m.quantity,
+          weight_kg: m.weight_kg,
         }))
       );
       if (matErr) { setError(matErr.message); setSaving(false); return; }
